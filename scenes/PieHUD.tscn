@@ -1,0 +1,142 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://models/pie.png" type="Texture" id=1]
+
+[sub_resource type="GDScript" id=1]
+
+script/source = "extends Control
+
+signal released(position, slice, tier)
+
+# Pixel offsets for each tier
+export var TIERS = [
+    62,
+    100,
+    142
+]
+
+# Radius of the dead zone, within which nothing can be selected.
+export var DEAD_ZONE_RADIUS = 10
+
+# From θ=0 up, a list of radial slices
+const SLICES = [
+    \"damage\",
+    \"damage-buff\",
+    \"buff\",
+    \"buff-health\",
+    \"health\",
+    \"health-curse\",
+    \"curse\",
+    \"curse-damage\"
+]
+var SLICE_RADIANS = (2 * PI) / SLICES.size()
+
+var selected = null
+
+func angle_between(n, a, b):
+    n = fmod(TAU + fmod(n, TAU), TAU)
+    a = fmod((TAU * 10 + a), TAU)
+    b = fmod((TAU * 10 + b), TAU)
+
+    if (a < b):
+        return a <= n && n <= b
+
+    return a <= n || n <= b
+
+func _draw():
+    if selected == null:
+        return
+
+    var r = TIERS[selected[1] - 1]
+    var theta = SLICES.find(selected[0]) * SLICE_RADIANS
+    var cartesian = polar2cartesian(r, -theta)
+    self.draw_circle(cartesian, 15.0, Color(1.0, 1.0, 1.0, 0.8))
+
+func _on_PieHUD_visibility_changed():
+    if visible == true:
+        self.rect_position = self.get_global_mouse_position()
+    else:
+        self.warp_mouse(Vector2(0, 0))
+        if selected != null:
+            self.emit_signal(\"released\", self.rect_position, selected[0], selected[1])
+            selected = null
+
+func _input(event):
+    if not self.visible or not event is InputEventMouseMotion:
+        return
+
+    var cursor = self.get_local_mouse_position()
+    var r = sqrt(pow(cursor.x, 2) + pow(cursor.y, 2))
+    var theta = wrapf(atan2(-cursor.y, cursor.x), 0, TAU)
+
+    if r <= DEAD_ZONE_RADIUS:
+        selected = null
+        self.update()
+        return
+
+    var tier = 0
+    var delta = INF
+    for i in range(0, TIERS.size()):
+        var candidate_delta = abs(TIERS[i] - r)
+        if candidate_delta < delta:
+            tier = i + 1
+            delta = candidate_delta
+
+    var slice_theta = TAU - (SLICE_RADIANS / 2)
+    var slice = null
+    for candidate_slice in SLICES:
+        if angle_between(theta, slice_theta, wrapf((slice_theta + SLICE_RADIANS), 0, TAU)):
+            slice = candidate_slice
+            break
+
+        slice_theta = wrapf(slice_theta + SLICE_RADIANS, 0, TAU)
+
+    if slice == null:
+        selected = null
+    else:
+        selected = [slice, tier]
+        self.update()"
+
+[node name="PieHUD" type="Control" index="0"]
+
+visible = false
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_right = 283.0
+margin_bottom = 283.0
+rect_pivot_offset = Vector2( 0, 0 )
+rect_clip_content = false
+mouse_filter = 0
+mouse_default_cursor_shape = 0
+size_flags_horizontal = 1
+size_flags_vertical = 1
+script = SubResource( 1 )
+_sections_unfolded = [ "Anchor", "Rect", "Visibility" ]
+TIERS = [ 62, 100, 142 ]
+DEAD_ZONE_RADIUS = 20
+
+[node name="Pie" type="TextureRect" parent="." index="0"]
+
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_left = -141.0
+margin_top = -141.0
+margin_right = 142.0
+margin_bottom = 142.0
+rect_pivot_offset = Vector2( 0, 0 )
+rect_clip_content = false
+mouse_filter = 1
+mouse_default_cursor_shape = 0
+size_flags_horizontal = 1
+size_flags_vertical = 1
+texture = ExtResource( 1 )
+stretch_mode = 4
+_sections_unfolded = [ "Anchor", "Grow Direction", "Rect" ]
+
+[connection signal="visibility_changed" from="." to="." method="_on_PieHUD_visibility_changed"]
+
+
