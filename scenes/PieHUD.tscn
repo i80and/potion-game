@@ -6,20 +6,20 @@
 
 script/source = "extends Control
 
-signal released(position, slice, tier)
+signal pie_released(position, slice, tier)
 
 # Pixel offsets for each tier
-export var TIERS = [
+export var TIERS: Array = [
     62,
     100,
     142
 ]
 
 # Radius of the dead zone, within which nothing can be selected.
-export var DEAD_ZONE_RADIUS = 10
+export var DEAD_ZONE_RADIUS: int = 10
 
 # From θ=0 up, a list of radial slices
-const SLICES = [
+const SLICES: Array = [
     \"damage\",
     \"damage-buff\",
     \"buff\",
@@ -29,11 +29,11 @@ const SLICES = [
     \"curse\",
     \"curse-damage\"
 ]
-var SLICE_RADIANS = (2 * PI) / SLICES.size()
+var SLICE_RADIANS: float = (2 * PI) / SLICES.size()
 
 var selected = null
 
-func angle_between(n, a, b):
+func angle_between(n: float, a: float, b: float) -> bool:
     n = fmod(TAU + fmod(n, TAU), TAU)
     a = fmod((TAU * 10 + a), TAU)
     b = fmod((TAU * 10 + b), TAU)
@@ -43,46 +43,48 @@ func angle_between(n, a, b):
 
     return a <= n || n <= b
 
-func _draw():
+func _draw() -> void:
     if selected == null:
         return
 
-    var r = TIERS[selected[1] - 1]
-    var theta = SLICES.find(selected[0]) * SLICE_RADIANS
-    var cartesian = polar2cartesian(r, -theta)
+    var r: int = TIERS[selected[1] - 1]
+    var theta: float = SLICES.find(selected[0]) * SLICE_RADIANS
+    var cartesian: Vector2 = polar2cartesian(r, -theta)
     self.draw_circle(cartesian, 15.0, Color(1.0, 1.0, 1.0, 0.8))
 
-func _on_PieHUD_visibility_changed():
+func _on_PieHUD_visibility_changed() -> void:
     if visible == true:
+        Engine.time_scale = 0.1
         self.rect_position = self.get_global_mouse_position()
     else:
+        Engine.time_scale = 1.0
         self.warp_mouse(Vector2(0, 0))
         if selected != null:
-            self.emit_signal(\"released\", self.rect_position, selected[0], selected[1])
+            emit_signal(\"pie_released\", self.rect_position, selected[0], selected[1])
             selected = null
 
-func _input(event):
-    if not self.visible or not event is InputEventMouseMotion:
-        return
+func _input(event: InputEvent) -> void:
+    if Input.is_action_just_released(\"activate_pie\"):
+        self.visible = false
 
-    var cursor = self.get_local_mouse_position()
-    var r = sqrt(pow(cursor.x, 2) + pow(cursor.y, 2))
-    var theta = wrapf(atan2(-cursor.y, cursor.x), 0, TAU)
+    var cursor: Vector2 = self.get_local_mouse_position()
+    var r: float = sqrt(pow(cursor.x, 2) + pow(cursor.y, 2))
+    var theta: float = wrapf(atan2(-cursor.y, cursor.x), 0, TAU)
 
     if r <= DEAD_ZONE_RADIUS:
         selected = null
         self.update()
         return
 
-    var tier = 0
-    var delta = INF
+    var tier: int = 0
+    var delta: float = INF
     for i in range(0, TIERS.size()):
-        var candidate_delta = abs(TIERS[i] - r)
+        var candidate_delta: float = abs(TIERS[i] - r)
         if candidate_delta < delta:
             tier = i + 1
             delta = candidate_delta
 
-    var slice_theta = TAU - (SLICE_RADIANS / 2)
+    var slice_theta: float = TAU - (SLICE_RADIANS / 2)
     var slice = null
     for candidate_slice in SLICES:
         if angle_between(theta, slice_theta, wrapf((slice_theta + SLICE_RADIANS), 0, TAU)):
@@ -97,46 +99,19 @@ func _input(event):
         selected = [slice, tier]
         self.update()"
 
-[node name="PieHUD" type="Control" index="0"]
-
+[node name="PieHUD" type="Control"]
 visible = false
-anchor_left = 0.0
-anchor_top = 0.0
-anchor_right = 0.0
-anchor_bottom = 0.0
 margin_right = 283.0
 margin_bottom = 283.0
-rect_pivot_offset = Vector2( 0, 0 )
-rect_clip_content = false
-mouse_filter = 0
-mouse_default_cursor_shape = 0
-size_flags_horizontal = 1
-size_flags_vertical = 1
 script = SubResource( 1 )
-_sections_unfolded = [ "Anchor", "Rect", "Visibility" ]
-TIERS = [ 62, 100, 142 ]
 DEAD_ZONE_RADIUS = 20
 
-[node name="Pie" type="TextureRect" parent="." index="0"]
-
-anchor_left = 0.0
-anchor_top = 0.0
-anchor_right = 0.0
-anchor_bottom = 0.0
+[node name="Pie" type="TextureRect" parent="."]
 margin_left = -141.0
 margin_top = -141.0
 margin_right = 142.0
 margin_bottom = 142.0
-rect_pivot_offset = Vector2( 0, 0 )
-rect_clip_content = false
-mouse_filter = 1
-mouse_default_cursor_shape = 0
-size_flags_horizontal = 1
-size_flags_vertical = 1
 texture = ExtResource( 1 )
 stretch_mode = 4
-_sections_unfolded = [ "Anchor", "Grow Direction", "Rect" ]
 
 [connection signal="visibility_changed" from="." to="." method="_on_PieHUD_visibility_changed"]
-
-

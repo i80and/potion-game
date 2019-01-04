@@ -2,22 +2,20 @@
 
 importer="texture"
 type="StreamTexture"
-path.s3tc="res://.import/Grain-Texture-01.png-25143ef53bcdc832201a4e2dafee883c.s3tc.stex"
-path.etc2="res://.import/Grain-Texture-01.png-25143ef53bcdc832201a4e2dafee883c.etc2.stex"
+path.s3tc="res://.import/Grain-Texture-01.png-f355bb61aa6dd6fb2556b03f76996e3e.s3tc.stex"
+path.etc2="res://.import/Grain-Texture-01.png-f355bb61aa6dd6fb2556b03f76996e3e.etc2.stex"
 
 [deps]
 
 source_file="res://models/Grain-Texture-01.png"
-source_md5="821eb8cd882848804a32e4170adf502e"
-
-dest_files=[ "res://.import/Grain-Texture-01.png-25143ef53bcdc832201a4e2dafee883c.s3tc.stex", "res://.import/Grain-Texture-01.png-25143ef53bcdc832201a4e2dafee883c.etc2.stex" ]
-dest_md5="f08097fa2f6e2164826a66785042a151"
+dest_files=[ "res://.import/Grain-Texture-01.png-f355bb61aa6dd6fb2556b03f76996e3e.s3tc.stex", "res://.import/Grain-Texture-01.png-f355bb61aa6dd6fb2556b03f76996e3e.etc2.stex" ]
 
 [params]
 
 compress/mode=2
 compress/lossy_quality=0.7
 compress/hdr_mode=0
+compress/bptc_ldr=0
 compress/normal_map=1
 flags/repeat=true
 flags/filter=true
@@ -27,6 +25,7 @@ flags/srgb=1
 process/fix_alpha_border=true
 process/premult_alpha=false
 process/HDR_as_SRGB=false
+process/invert_color=false
 stream=false
 size_limit=0
 detect_3d=false

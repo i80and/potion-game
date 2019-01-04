@@ -2,12 +2,12 @@
 
 importer="scene"
 type="PackedScene"
-path="res://.import/Tree.dae-21bb7e6ca3d5f379c65efc8cd21a8321.scn"
+path="res://.import/low_poly_rock.glb-d97dc1bbd3c289cfd9b0c555cdd31afb.scn"
 
 [deps]
 
-source_file="res://models/Tree.dae"
-dest_files=[ "res://.import/Tree.dae-21bb7e6ca3d5f379c65efc8cd21a8321.scn" ]
+source_file="res://models/low_poly_rock.glb"
+dest_files=[ "res://.import/low_poly_rock.glb-d97dc1bbd3c289cfd9b0c555cdd31afb.scn" ]
 
 [params]
 
@@ -18,14 +18,14 @@ nodes/custom_script=""
 nodes/storage=0
 materials/location=1
 materials/storage=1
-materials/keep_on_reimport=false
+materials/keep_on_reimport=true
 meshes/compress=true
 meshes/ensure_tangents=true
 meshes/storage=0
 meshes/light_baking=0
 meshes/lightmap_texel_size=0.1
 external_files/store_in_subdir=false
-animation/import=false
+animation/import=true
 animation/fps=15
 animation/filter_script=""
 animation/storage=false

@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=2]
+
+[sub_resource type="GDScript" id=1]
+
+script/source = "extends Camera
+
+func _ready() -> void:
+    set_orthogonal(size, -size, 100)"
+
+[node name="GameCamera" type="Camera"]
+transform = Transform( 0.898794, -0.192169, 0.394005, 0, 0.898794, 0.438371, -0.438371, -0.394005, 0.807831, 0, 0, 0 )
+projection = 1
+size = 25.0
+near = 0.01
+script = SubResource( 1 )
+
