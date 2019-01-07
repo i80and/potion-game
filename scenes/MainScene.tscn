@@ -241,5 +241,5 @@ environment = SubResource( 3 )
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 19.724 )
 
 [connection signal="pie_released" from="CanvasLayer/PieHUD" to="." method="_on_PieHUD_pie_released"]
-[connection signal="activate_pie" from="PlayerCharacter" to="." method="_on_PlayerCharacter_activate_pie"]
 [connection signal="activate_pie" from="PlayerCharacter" to="." method="_on_Character_activate_pie"]
+[connection signal="activate_pie" from="PlayerCharacter" to="." method="_on_PlayerCharacter_activate_pie"]
