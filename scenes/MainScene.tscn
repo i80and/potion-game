@@ -204,12 +204,6 @@ func _ready() -> void:
 
 [sub_resource type="ProceduralSky" id=2]
 
-sky_top_color = Color( 0.0470588, 0.454902, 0.976471, 1 )
-sky_horizon_color = Color( 0.556863, 0.823529, 0.909804, 1 )
-sky_curve = 0.25
-ground_bottom_color = Color( 0.101961, 0.145098, 0.188235, 1 )
-ground_horizon_color = Color( 0.482353, 0.788235, 0.952941, 1 )
-ground_curve = 0.01
 
 [sub_resource type="Environment" id=3]
 
@@ -241,5 +235,5 @@ environment = SubResource( 3 )
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 19.724 )
 
 [connection signal="pie_released" from="CanvasLayer/PieHUD" to="." method="_on_PieHUD_pie_released"]
-[connection signal="activate_pie" from="PlayerCharacter" to="." method="_on_Character_activate_pie"]
 [connection signal="activate_pie" from="PlayerCharacter" to="." method="_on_PlayerCharacter_activate_pie"]
+[connection signal="activate_pie" from="PlayerCharacter" to="." method="_on_Character_activate_pie"]
