@@ -1,10 +1,9 @@
 [gd_scene load_steps=4 format=2]
 
-[ext_resource path="res://scenes/ThrownPotion.gd" type="Script" id=1]
+[ext_resource path="res://scripts/ThrownPotion.cs" type="Script" id=1]
 [ext_resource path="res://models/potion-bottle-lowpoly.glb" type="PackedScene" id=2]
 
 [sub_resource type="CapsuleShape" id=1]
-
 radius = 0.143389
 height = 0.0879991
 
@@ -20,4 +19,4 @@ transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.00
 shape = SubResource( 1 )
 
 [node name="Scene Root" parent="." instance=ExtResource( 2 )]
-
+[connection signal="body_entered" from="." to="." method="OnHit"]
