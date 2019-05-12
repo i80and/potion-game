@@ -1,7 +1,6 @@
 [gd_scene load_steps=2 format=2]
 
 [sub_resource type="GDScript" id=1]
-
 script/source = "extends Camera
 
 func _ready() -> void:
@@ -13,4 +12,3 @@ projection = 1
 size = 25.0
 near = 0.01
 script = SubResource( 1 )
-

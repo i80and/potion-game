@@ -4,17 +4,13 @@
 [ext_resource path="res://fox-face.png" type="Texture" id=2]
 [ext_resource path="res://scenes/GameCamera.tscn" type="PackedScene" id=3]
 
-
 [sub_resource type="CapsuleShape" id=1]
-
 radius = 0.587471
 
 [sub_resource type="PlaneMesh" id=2]
-
 size = Vector2( 1, 1 )
 
 [sub_resource type="SpatialMaterial" id=3]
-
 flags_transparent = true
 albedo_texture = ExtResource( 2 )
 
@@ -32,5 +28,5 @@ material/0 = SubResource( 3 )
 
 [node name="Camera" parent="." instance=ExtResource( 3 )]
 transform = Transform( 0.898794, -0.192169, 0.394005, 0, 0.898794, 0.438371, -0.438371, -0.394005, 0.807831, 5.93837, 16.1603, 14.838 )
+projection = 0
 size = 15.0
-

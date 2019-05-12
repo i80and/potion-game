@@ -20,13 +20,19 @@ public class GameWorld : Spatial
         _character.LaunchPotion(intersection, slice, tier);
     }
 
-    void CheckIfNeedChunk() {
+    void CheckIfNeedChunk(bool urgent)
+    {
         var camera = GetViewport().GetCamera();
         var half_size = camera.Size / 2.0f;
         var camera_translation = camera.GlobalTransform.origin;
         var center = new Vector2(camera_translation.x + half_size, camera_translation.z + half_size);
         var chunk_pos = (center / WorldMap.UNITS_PER_CHUNK).Floor();
-        _map.LoadChunk(chunk_pos);
+        _map.LoadChunk(chunk_pos, urgent);
+    }
+
+    void CheckIfNeedChunk()
+    {
+        CheckIfNeedChunk(false);
     }
 
     public override void _Ready() {
@@ -36,7 +42,7 @@ public class GameWorld : Spatial
         _timer = new Timer();
 
         // character.translate(Vector3(2100 * UNITS_PER_PIXEL, 0, 546 * UNITS_PER_PIXEL))
-        CheckIfNeedChunk();
+        CheckIfNeedChunk(true);
         AddChild(_timer);
         _timer.WaitTime = 0.5f;
         _timer.ProcessMode = Timer.TimerProcessMode.Physics;

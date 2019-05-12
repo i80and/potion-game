@@ -1,8 +1,29 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading.Tasks;
+
+struct BlockType {
+    public static readonly int[] SIZE = new int[] {
+        2048 / WorldMap.CHUNK_PIXELS,
+        2048 / WorldMap.CHUNK_PIXELS};
+
+    public string Description { get; }
+    public Image Albedo { get; }
+    public bool HaveTree { get; }
+
+    public BlockType(string description, Color color, bool haveTree=false) {
+        this.Description = description;
+        this.Albedo = new Image();
+        this.Albedo.Create(SIZE[0], SIZE[1], false, Image.Format.Rgb8);
+        this.Albedo.Lock();
+        this.Albedo.Fill(color);
+        this.Albedo.Unlock();
+        this.HaveTree = haveTree;
+    }
+}
 
 class Chunk : Spatial {
     static readonly PackedScene TREE1_SCENE = ResourceLoader.Load("res://scenes/Tree1.tscn") as PackedScene;
@@ -18,25 +39,46 @@ class Chunk : Spatial {
         MAPLE_SCENE
     };
 
+    static readonly BlockType FALLBACK_BLOCK_TYPE = new BlockType("Space", new Color(0, 0, 0, 1));
+    static readonly Dictionary<(byte, byte, byte), BlockType> BLOCK_TYPES = new Dictionary<(byte, byte, byte), BlockType> {
+        {(0, 255, 0), new BlockType("Grass", Color.Color8(0, 255, 0, 255))},
+        {(0, 200, 0), new BlockType("Tree", Color.Color8(0, 200, 0, 255), true)},
+        {(157, 209, 137), new BlockType("Tree", Color.Color8(157, 209, 137, 255), true)},
+        {(232, 180, 107), new BlockType("", Color.Color8(232, 180, 107, 255))},
+        {(255, 255, 0), new BlockType("", Color.Color8(255, 255, 0, 255))},
+        {(50, 50, 255), new BlockType("", Color.Color8(50, 50, 255, 255))},
+        {(152, 255, 160), new BlockType("", Color.Color8(152, 255, 160, 255))},
+        {(52, 255, 68), new BlockType("", Color.Color8(52, 255, 68, 255))},
+        {(0, 0, 255), new BlockType("Ocean", Color.Color8(0, 0, 255, 255))},
+        {(255, 255, 255), new BlockType("Snow", Color.Color8(255, 255, 255, 255))}
+    };
+
     public Vector2 ChunkPos { get; }
 
-    public Chunk(Vector2 chunkPos, Image image)
+    public Chunk(Vector2 chunkPos, Image image, bool compress)
     {
         ChunkPos = chunkPos;
 
         var rng = new Random(GD.Hash(chunkPos));
 
-        var material = new SpatialMaterial();
-        material.VertexColorUseAsAlbedo = true;
-        var mesh = new QuadMesh();
-        mesh.Material = material;
-        mesh.Size = new Vector2(WorldMap.UNITS_PER_PIXEL, WorldMap.UNITS_PER_PIXEL);
-        var groundMultimesh = new MultiMesh();
-        int instanceCount = WorldMap.CHUNK_PIXELS * WorldMap.CHUNK_PIXELS;
-        groundMultimesh.ColorFormat = MultiMesh.ColorFormatEnum.Color8bit;
-        groundMultimesh.TransformFormat = MultiMesh.TransformFormatEnum.Transform3d;
-        groundMultimesh.InstanceCount = instanceCount;
-        groundMultimesh.Mesh = mesh;
+        var groundMaterial = new SpatialMaterial();
+        var groundMesh = new QuadMesh();
+        var ground = new MeshInstance();
+        ground.Rotate(new Vector3(1, 0, 0), Mathf.Pi / -2.0f);
+        ground.Translate(
+            new Vector3(
+                WorldMap.UNITS_PER_CHUNK / 2,
+                WorldMap.UNITS_PER_CHUNK / 2,
+                0));
+        ground.Mesh = groundMesh;
+        groundMesh.Material = groundMaterial;
+        groundMesh.Size = new Vector2(
+            WorldMap.UNITS_PER_PIXEL * WorldMap.CHUNK_PIXELS,
+            WorldMap.UNITS_PER_PIXEL * WorldMap.CHUNK_PIXELS);
+
+        var groundImage = new Image();
+        groundImage.Create(2048, 2048, false, Image.Format.Rgb8);
+        groundImage.Lock();
 
         var data = image.GetData();
         int i = 0;
@@ -46,25 +88,38 @@ class Chunk : Spatial {
                 byte r = data[offset];
                 byte g = data[offset + 1];
                 byte b = data[offset + 2];
-                if (g == 200 || g == 209) {
-                    var scene = TREES[rng.Next(0, TREES.Length)];
-                    AddChild(AddObject(scene, new Vector2(x, y), rng));
+                BlockType blockType;
+                if (BLOCK_TYPES.TryGetValue((r, g, b), out blockType))
+                {
+                    if (blockType.HaveTree) {
+                        var scene = TREES[rng.Next(0, TREES.Length)];
+                        AddChild(AddObject(scene, new Vector2(x, y), rng));
+                    }
+                }
+                else
+                {
+                    blockType = FALLBACK_BLOCK_TYPE;
                 }
 
-                var color = Color.Color8(r, g, b, 255);
-                groundMultimesh.SetInstanceColor(i, color);
-                var transform = new Transform().Rotated(new Vector3(1, 0, 0), Mathf.Pi / -2.0f).Translated(
-                    new Vector3(x * WorldMap.UNITS_PER_PIXEL, -y * WorldMap.UNITS_PER_PIXEL, 0)
-                );
-                groundMultimesh.SetInstanceTransform(i, transform);
+                groundImage.BlitRect(
+                    blockType.Albedo,
+                    blockType.Albedo.GetUsedRect(),
+                    new Vector2(x * BlockType.SIZE[0], y * BlockType.SIZE[1]));
                 offset += 3;
                 i += 1;
             }
         }
 
-        var groundMeshInstance = new MultiMeshInstance();
-        groundMeshInstance.Multimesh = groundMultimesh;
-        AddChild(groundMeshInstance);
+        groundImage.Unlock();
+        // if (compress)
+        // {
+        //     groundImage.Compress(Image.CompressMode.S3tc, Image.CompressSource.Normal, 0.9f);
+        // }
+        var groundTexture = new ImageTexture();
+        groundTexture.CreateFromImage(groundImage);
+        groundMaterial.AlbedoTexture = groundTexture;
+
+        AddChild(ground);
         var collisionBody = new StaticBody();
         var collisionShape = new CollisionShape();
         var shape = new BoxShape();
@@ -107,25 +162,27 @@ class Chunk : Spatial {
     }
 }
 
-public class WorldMap : Spatial
+public class WorldMap : Node
 {
-    //   10 units per map pixel
-    public const int UNITS_PER_PIXEL = 5;
+    //   4 units per map pixel
+    public const int UNITS_PER_PIXEL = 4;
     // * 16 map pixels per chunk
     public const int CHUNK_PIXELS = 16;
     // = 160 units per chunk
     public const int UNITS_PER_CHUNK = CHUNK_PIXELS * UNITS_PER_PIXEL;
 
     static readonly Vector2[] DIRECTIONS = {
+        new Vector2(0, 0),
         new Vector2(-1, 1), new Vector2(0, 1), new Vector2(1, 1),
-        new Vector2(-1, 0), new Vector2(0, 0), new Vector2(1, 0),
+        new Vector2(-1, 0), new Vector2(1, 0),
         new Vector2(-1, -1), new Vector2(0, -1), new Vector2(1, -1),
     };
 
     readonly Image _image;
     readonly System.Collections.Generic.Dictionary<Vector2, Chunk> _chunks = new Dictionary<Vector2, Chunk>();
     readonly Node _node;
-    Task<Chunk[]> _worker;
+    ConcurrentQueue<Chunk> _pendingChunks = new ConcurrentQueue<Chunk>();
+    Task _worker;
 
     public WorldMap() {}
 
@@ -144,45 +201,55 @@ public class WorldMap : Spatial
 
     void GarbageCollectChunks(Vector2 camera_chunk_pos)
     {
-        foreach (var chunk_pos in _chunks.Keys) {
+        var removeKeys = new List<Vector2>(_chunks.Count);
+        foreach (var chunk in _chunks) {
+            var chunk_pos = chunk.Key;
             if (Math.Abs(chunk_pos.x - camera_chunk_pos.x) > 1 ||
                 Math.Abs(chunk_pos.y - camera_chunk_pos.y) > 1) {
-                Node node = _chunks[chunk_pos];
-                _chunks.Remove(chunk_pos);
-                _node.RemoveChild(node);
+                Node node = chunk.Value;
+                node.QueueFree();
+                removeKeys.Add(chunk_pos);
             }
+        }
+
+        foreach (var chunk_pos in removeKeys)
+        {
+            _chunks.Remove(chunk_pos);
         }
     }
 
-    Chunk[] WorkerLoadChunk(Vector2[] candidate_positions)
+    /// <summary>
+    /// Main function for the chunk load task.
+    /// </summary>
+    void WorkerLoadChunk(Vector2[] candidate_positions, bool compress)
     {
-        var chunks = new Chunk[candidate_positions.Length];
-        int i = 0;
         foreach (var candidate in candidate_positions) {
             var rect = new Rect2(candidate.x * CHUNK_PIXELS, candidate.y * CHUNK_PIXELS, CHUNK_PIXELS, CHUNK_PIXELS);
-            var chunk = new Chunk(candidate, _image.GetRect(rect));
+            var chunk = new Chunk(candidate, _image.GetRect(rect), compress);
             chunk.Translate(new Vector3(
                 candidate.x * UNITS_PER_CHUNK,
                 0,
                 candidate.y * UNITS_PER_CHUNK));
-            chunks[i++] = chunk;
+            _pendingChunks.Enqueue(chunk);
+            CallDeferred("WorkerInsertChunk");
         }
-
-        CallDeferred("WorkerFinished");
-        return chunks;
     }
 
-    void WorkerFinished()
+    /// <summary>
+    /// Callback the chunk load task will request once a chunk has been placed in the queue.
+    /// </summary>
+    void WorkerInsertChunk()
     {
-        var chunks = _worker.Result;
-        foreach (var chunk in chunks) {
+        while (_pendingChunks.TryDequeue(out var chunk)) {
             _chunks[chunk.ChunkPos] = chunk;
             _node.AddChild(chunk);
         }
-        _worker = null;
     }
 
-    public void LoadChunk(Vector2 chunk_pos)
+    /// <summary>
+    /// Load the given chunk position into th game world.
+    /// </summary>
+    public void LoadChunk(Vector2 chunk_pos, bool urgent = false)
     {
         if (_worker != null && !_worker.IsCompleted)
         {
@@ -211,12 +278,19 @@ public class WorldMap : Spatial
         }
 
         Array.Resize(ref needed, i);
-        if (needed.Length == 0) {
+        if (needed.Length == 0)
+        {
             return;
         }
 
-        _worker = Task.Run<Chunk[]>(() => {
-            return this.WorkerLoadChunk(needed);
+        // Don't compress if we're in an urgent state
+        bool haveCompression = urgent ? false : VisualServer.HasOsFeature("s3tc");
+
+        _worker = Task.Run(() => {
+            this.WorkerLoadChunk(needed, haveCompression);
+        });
+        _worker.ContinueWith((task) => {
+            _worker = null;
         });
     }
 }
