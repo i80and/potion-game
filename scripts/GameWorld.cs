@@ -38,7 +38,9 @@ public class GameWorld : Spatial
     public override void _Ready() {
         _character = (PlayerCharacter)GetNode("PlayerCharacter");
         _piehud = (Control)GetNode("CanvasLayer/PieHUD");
-        _map = new WorldMap((Image)ResourceLoader.Load("res://world-1544060774196.png"), this);
+        _map = new WorldMap((Image)ResourceLoader.Load("res://world-1544060774196.png"));
+        AddChild(_map);
+
         _timer = new Timer();
 
         // character.translate(Vector3(2100 * UNITS_PER_PIXEL, 0, 546 * UNITS_PER_PIXEL))

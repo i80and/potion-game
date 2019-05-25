@@ -1,9 +1,9 @@
 using Godot;
 using System;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Threading;
 
 struct BlockType {
     public static readonly int[] SIZE = new int[] {
@@ -26,14 +26,14 @@ struct BlockType {
 }
 
 class Chunk : Spatial {
-    static readonly PackedScene TREE1_SCENE = ResourceLoader.Load("res://scenes/Tree1.tscn") as PackedScene;
-    static readonly PackedScene TREE2_SCENE = ResourceLoader.Load("res://scenes/Tree2.tscn") as PackedScene;
-    static readonly PackedScene MAPLE_SCENE = ResourceLoader.Load("res://scenes/Maple.tscn") as PackedScene;
-    static readonly PackedScene ROCK1_SCENE = ResourceLoader.Load("res://scenes/LowPolyRock1.tscn") as PackedScene;
-    static readonly PackedScene ROCK2_SCENE = ResourceLoader.Load("res://scenes/LowPolyRock2.tscn") as PackedScene;
-    static readonly PackedScene CHARACTER_SCENE = ResourceLoader.Load("res://scenes/PlayerCharacter.tscn") as PackedScene;
+    static readonly Spatial TREE1_SCENE = (Spatial)((PackedScene)ResourceLoader.Load("res://scenes/Tree1.tscn")).Instance();
+    static readonly Spatial TREE2_SCENE = (Spatial)((PackedScene)ResourceLoader.Load("res://scenes/Tree2.tscn")).Instance();
+    static readonly Spatial MAPLE_SCENE = (Spatial)((PackedScene)ResourceLoader.Load("res://scenes/Maple.tscn")).Instance();
+    static readonly Spatial ROCK1_SCENE = (Spatial)((PackedScene)ResourceLoader.Load("res://scenes/LowPolyRock1.tscn")).Instance();
+    static readonly Spatial ROCK2_SCENE = (Spatial)((PackedScene)ResourceLoader.Load("res://scenes/LowPolyRock2.tscn")).Instance();
+    static readonly Spatial CHARACTER_SCENE = (Spatial)((PackedScene)ResourceLoader.Load("res://scenes/PlayerCharacter.tscn")).Instance();
 
-    static readonly PackedScene[] TREES = {
+    static readonly Spatial[] TREES = {
         TREE1_SCENE,
         TREE2_SCENE,
         MAPLE_SCENE
@@ -68,13 +68,13 @@ class Chunk : Spatial {
         ground.Translate(
             new Vector3(
                 WorldMap.UNITS_PER_CHUNK / 2,
-                WorldMap.UNITS_PER_CHUNK / 2,
+                -WorldMap.UNITS_PER_CHUNK / 2,
                 0));
         ground.Mesh = groundMesh;
         groundMesh.Material = groundMaterial;
         groundMesh.Size = new Vector2(
-            WorldMap.UNITS_PER_PIXEL * WorldMap.CHUNK_PIXELS,
-            WorldMap.UNITS_PER_PIXEL * WorldMap.CHUNK_PIXELS);
+            WorldMap.UNITS_PER_CHUNK,
+            WorldMap.UNITS_PER_CHUNK);
 
         var groundImage = new Image();
         groundImage.Create(2048, 2048, false, Image.Format.Rgb8);
@@ -93,7 +93,8 @@ class Chunk : Spatial {
                 {
                     if (blockType.HaveTree) {
                         var scene = TREES[rng.Next(0, TREES.Length)];
-                        AddChild(AddObject(scene, new Vector2(x, y), rng));
+                        var tree = AddObject(scene, new Vector2(x, y), rng);
+                        AddChild(tree);
                     }
                 }
                 else
@@ -111,10 +112,10 @@ class Chunk : Spatial {
         }
 
         groundImage.Unlock();
-        // if (compress)
-        // {
-        //     groundImage.Compress(Image.CompressMode.S3tc, Image.CompressSource.Normal, 0.9f);
-        // }
+        if (compress)
+        {
+            groundImage.Compress(Image.CompressMode.S3tc, Image.CompressSource.Srgb, 0.9f);
+        }
         var groundTexture = new ImageTexture();
         groundTexture.CreateFromImage(groundImage);
         groundMaterial.AlbedoTexture = groundTexture;
@@ -132,9 +133,9 @@ class Chunk : Spatial {
         PlaceCosmetics(rng);
     }
 
-    Node AddObject(PackedScene scene, Vector2 pos, Random rng)
+    Spatial AddObject(Spatial scene, Vector2 pos, Random rng)
     {
-        var node = (Spatial)scene.Instance();
+        var node = (Spatial)scene.Duplicate(0);
         node.Translation = new Vector3(pos.x, 0, pos.y) * WorldMap.UNITS_PER_PIXEL;
         node.Rotation = new Vector3(0, RandomFloat(rng, 0, 2.0f * Mathf.Pi), 0);
         float scale_y = RandomFloat(rng, 0.8f, 1.2f);
@@ -148,17 +149,60 @@ class Chunk : Spatial {
         int nRocks = rng.Next(0, 50);
         for (int i = 0; i < nRocks; i += 1)
         {
-            var rock = (Spatial)((rng.NextDouble() > 0.5) ? ROCK1_SCENE.Instance() : ROCK2_SCENE.Instance());
+            var rock = (Spatial)((rng.NextDouble() > 0.5) ? ROCK1_SCENE.Duplicate() : ROCK2_SCENE.Duplicate());
             float x = RandomFloat(rng, 0, WorldMap.UNITS_PER_CHUNK);
             float y = RandomFloat(rng, 0, WorldMap.UNITS_PER_CHUNK);
             rock.Translation = new Vector3(x, 0, y);
             rock.Rotation = new Vector3(0, RandomFloat(rng, 0, 2.0f * Mathf.Pi), 0);
+
             AddChild(rock);
         }
     }
 
     static float RandomFloat(Random rng, float min, float max) {
         return (float)rng.NextDouble() * (max - min) + min;
+    }
+}
+
+class Worker : Node
+{
+    Image _image;
+    int pending = 0;
+
+    public Worker(Image image)
+    {
+        _image = image;
+    }
+
+    /// <summary>
+    /// Main function for the chunk load task.
+    /// </summary>
+    public void WorkerLoadChunk(Vector2[] candidate_positions, bool compress)
+    {
+        Interlocked.Add(ref pending, candidate_positions.Length);
+
+        Task.Run(() => {
+            foreach (var candidate in candidate_positions) {
+                var rect = new Rect2(
+                    candidate.x * WorldMap.CHUNK_PIXELS,
+                    candidate.y * WorldMap.CHUNK_PIXELS,
+                    WorldMap.CHUNK_PIXELS,
+                    WorldMap.CHUNK_PIXELS);
+                var chunk = new Chunk(candidate, _image.GetRect(rect), compress);
+                chunk.Translate(new Vector3(
+                    candidate.x * WorldMap.UNITS_PER_CHUNK,
+                    0,
+                    candidate.y * WorldMap.UNITS_PER_CHUNK));
+                GetParent().CallDeferred("OnChunkCreated", chunk);
+                Interlocked.Decrement(ref pending);
+            }
+        });
+    }
+
+    public bool IsCompleted {
+        get {
+            return pending == 0;
+        }
     }
 }
 
@@ -180,19 +224,20 @@ public class WorldMap : Node
 
     readonly Image _image;
     readonly System.Collections.Generic.Dictionary<Vector2, Chunk> _chunks = new Dictionary<Vector2, Chunk>();
-    readonly Node _node;
-    ConcurrentQueue<Chunk> _pendingChunks = new ConcurrentQueue<Chunk>();
-    Task _worker;
+    Worker _worker;
 
     public WorldMap() {}
 
-    public WorldMap(Image image, Node node)
+    public WorldMap(Image image)
     {
-        _node = node;
         _image = image;
-        Debug.Assert(_image.GetFormat() == Image.Format.Rg8);
+
+        Debug.Assert(_image.GetFormat() == Image.Format.Rgb8);
         Debug.Assert(_image.GetWidth() % CHUNK_PIXELS == 0);
         Debug.Assert(_image.GetHeight() % CHUNK_PIXELS == 0);
+
+        _worker = new Worker(_image);
+        AddChild(_worker);
     }
 
     // Called when the node enters the scene tree for the first time.
@@ -206,7 +251,7 @@ public class WorldMap : Node
             var chunk_pos = chunk.Key;
             if (Math.Abs(chunk_pos.x - camera_chunk_pos.x) > 1 ||
                 Math.Abs(chunk_pos.y - camera_chunk_pos.y) > 1) {
-                Node node = chunk.Value;
+                Chunk node = (Chunk)chunk.Value;
                 node.QueueFree();
                 removeKeys.Add(chunk_pos);
             }
@@ -219,39 +264,11 @@ public class WorldMap : Node
     }
 
     /// <summary>
-    /// Main function for the chunk load task.
-    /// </summary>
-    void WorkerLoadChunk(Vector2[] candidate_positions, bool compress)
-    {
-        foreach (var candidate in candidate_positions) {
-            var rect = new Rect2(candidate.x * CHUNK_PIXELS, candidate.y * CHUNK_PIXELS, CHUNK_PIXELS, CHUNK_PIXELS);
-            var chunk = new Chunk(candidate, _image.GetRect(rect), compress);
-            chunk.Translate(new Vector3(
-                candidate.x * UNITS_PER_CHUNK,
-                0,
-                candidate.y * UNITS_PER_CHUNK));
-            _pendingChunks.Enqueue(chunk);
-            CallDeferred("WorkerInsertChunk");
-        }
-    }
-
-    /// <summary>
-    /// Callback the chunk load task will request once a chunk has been placed in the queue.
-    /// </summary>
-    void WorkerInsertChunk()
-    {
-        while (_pendingChunks.TryDequeue(out var chunk)) {
-            _chunks[chunk.ChunkPos] = chunk;
-            _node.AddChild(chunk);
-        }
-    }
-
-    /// <summary>
     /// Load the given chunk position into th game world.
     /// </summary>
     public void LoadChunk(Vector2 chunk_pos, bool urgent = false)
     {
-        if (_worker != null && !_worker.IsCompleted)
+        if (!_worker.IsCompleted)
         {
             return;
         }
@@ -286,11 +303,14 @@ public class WorldMap : Node
         // Don't compress if we're in an urgent state
         bool haveCompression = urgent ? false : VisualServer.HasOsFeature("s3tc");
 
-        _worker = Task.Run(() => {
-            this.WorkerLoadChunk(needed, haveCompression);
-        });
-        _worker.ContinueWith((task) => {
-            _worker = null;
-        });
+        _worker.WorkerLoadChunk(needed, haveCompression);
+    }
+
+    void OnChunkCreated(Chunk chunk)
+    {
+        var t = OS.GetTicksMsec();
+        _chunks[chunk.ChunkPos] = chunk;
+        AddChild(chunk);
+        GD.Print(OS.GetTicksMsec() - t);
     }
 }
