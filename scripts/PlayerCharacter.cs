@@ -9,8 +9,8 @@ public class PlayerCharacter : KinematicBody
     [Export]
     int speed = 20;
 
-    static readonly PackedScene THROWN_POTION = ResourceLoader.Load("res://scenes/ThrownPotion.tscn") as PackedScene;
-    CollisionShape _collisionShape;
+    static readonly PackedScene THROWN_POTION = ResourceLoader.Load("res://scenes/ThrownPotion.tscn") as PackedScene ?? throw new ArgumentNullException();
+    CollisionShape? _collisionShape;
 
     Vector3 GetInput() {
         if (Input.IsActionJustPressed("activate_pie")) {
@@ -51,7 +51,7 @@ public class PlayerCharacter : KinematicBody
     public void LaunchPotion(Vector3 target, String slice, int tier) {
         var potion = (ThrownPotion)THROWN_POTION.Instance();
         GetParent().AddChild(potion);
-        potion.GlobalTranslate(_collisionShape.GlobalTransform.origin);
+        potion.GlobalTranslate(_collisionShape!.GlobalTransform.origin);
         potion.Translate(new Vector3(0, 2, 0));
         potion.Launch(target);
     }

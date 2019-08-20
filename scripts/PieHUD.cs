@@ -44,7 +44,7 @@ public class PieHUD : Control
     };
     static readonly float SLICE_RADIANS = (2.0f * Mathf.Pi) / (float)SLICES.Length;
 
-    Selection _selected;
+    Selection? _selected;
 
     bool AngleBetween(float n, float a, float b)
     {
@@ -121,7 +121,7 @@ public class PieHUD : Control
         }
 
         float slice_theta = TAU - (SLICE_RADIANS / 2);
-        String slice = null;
+        String slice = "";
         foreach (var candidateSlice in SLICES) {
             if (AngleBetween(theta, slice_theta, Mathf.Wrap((slice_theta + SLICE_RADIANS), 0, TAU))) {
                 slice = candidateSlice;
@@ -131,7 +131,7 @@ public class PieHUD : Control
             slice_theta = Mathf.Wrap(slice_theta + SLICE_RADIANS, 0, TAU);
         }
 
-        if (slice == null) {
+        if (slice.Empty()) {
             _selected = null;
         } else {
             _selected = new Selection(slice, tier);

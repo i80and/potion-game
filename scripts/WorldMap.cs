@@ -226,8 +226,6 @@ public class WorldMap : Node
     readonly System.Collections.Generic.Dictionary<Vector2, Chunk> _chunks = new Dictionary<Vector2, Chunk>();
     Worker _worker;
 
-    public WorldMap() {}
-
     public WorldMap(Image image)
     {
         _image = image;

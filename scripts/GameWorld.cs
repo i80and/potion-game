@@ -3,13 +3,13 @@ using System;
 
 public class GameWorld : Spatial
 {
-    PlayerCharacter _character;
-    Control _piehud;
-    WorldMap _map;
-    Timer _timer;
+    PlayerCharacter? _character;
+    Control? _piehud;
+    WorldMap _map = new WorldMap((Image)ResourceLoader.Load("res://world-1544060774196.png"));
+    Timer _timer = new Timer();
 
     void OnPlayerCharacterActivatePie() {
-        _piehud.Visible = true;
+        _piehud!.Visible = true;
     }
 
     void OnPieReleased(Vector2 position, String slice, int tier) {
@@ -17,7 +17,7 @@ public class GameWorld : Spatial
         var from = camera.ProjectRayOrigin(position);
         var to = from + camera.ProjectRayNormal(position) * 1000;
         var intersection = Plane.PlaneXZ.IntersectRay(from, to);
-        _character.LaunchPotion(intersection, slice, tier);
+        _character!.LaunchPotion(intersection, slice, tier);
     }
 
     void CheckIfNeedChunk(bool urgent)
@@ -38,10 +38,7 @@ public class GameWorld : Spatial
     public override void _Ready() {
         _character = (PlayerCharacter)GetNode("PlayerCharacter");
         _piehud = (Control)GetNode("CanvasLayer/PieHUD");
-        _map = new WorldMap((Image)ResourceLoader.Load("res://world-1544060774196.png"));
         AddChild(_map);
-
-        _timer = new Timer();
 
         // character.translate(Vector3(2100 * UNITS_PER_PIXEL, 0, 546 * UNITS_PER_PIXEL))
         CheckIfNeedChunk(true);
