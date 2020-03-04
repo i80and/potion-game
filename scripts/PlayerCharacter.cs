@@ -52,7 +52,7 @@ public class PlayerCharacter : KinematicBody
         MoveAndSlide(velocity);
         if (Translation.y < 0.1f)
         {
-            Translation.Set(Translation.x, 0.1f, Translation.z);
+            Translation = new Vector3(Translation.x, 0.1f, Translation.z);
         }
     }
 

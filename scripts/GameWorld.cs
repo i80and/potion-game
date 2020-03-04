@@ -5,8 +5,6 @@ public class GameWorld : Spatial
 {
     PlayerCharacter? _character;
     Control? _piehud;
-    WorldMap _map = new WorldMap((Image)ResourceLoader.Load("res://world-1544060774196.png"));
-    Timer _timer = new Timer();
 
     void OnPlayerCharacterActivatePie()
     {
@@ -19,36 +17,17 @@ public class GameWorld : Spatial
         var from = camera.ProjectRayOrigin(position);
         var to = from + camera.ProjectRayNormal(position) * 1000;
         var intersection = Plane.PlaneXZ.IntersectRay(from, to);
-        _character!.LaunchPotion(intersection, slice, tier);
-    }
-
-    void CheckIfNeedChunk(bool urgent)
-    {
-        var camera = GetViewport().GetCamera();
-        var half_size = camera.Size / 2.0f;
-        var camera_translation = camera.GlobalTransform.origin;
-        var center = new Vector2(camera_translation.x + half_size, camera_translation.z + half_size);
-        var chunk_pos = (center / WorldMap.UNITS_PER_CHUNK).Floor();
-        _map.LoadChunk(chunk_pos, urgent);
-    }
-
-    void CheckIfNeedChunk()
-    {
-        CheckIfNeedChunk(false);
+        if (intersection is Vector3 vec)
+        {
+            _character!.LaunchPotion(vec, slice, tier);
+        }
     }
 
     public override void _Ready()
     {
         _character = (PlayerCharacter)GetNode("PlayerCharacter");
         _piehud = (Control)GetNode("CanvasLayer/PieHUD");
-        AddChild(_map);
 
         // character.translate(Vector3(2100 * UNITS_PER_PIXEL, 0, 546 * UNITS_PER_PIXEL))
-        CheckIfNeedChunk(true);
-        AddChild(_timer);
-        _timer.WaitTime = 0.5f;
-        _timer.ProcessMode = Timer.TimerProcessMode.Physics;
-        _timer.Connect("timeout", this, "CheckIfNeedChunk");
-        _timer.Start();
     }
 }
