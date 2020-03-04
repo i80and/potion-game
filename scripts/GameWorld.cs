@@ -8,11 +8,13 @@ public class GameWorld : Spatial
     WorldMap _map = new WorldMap((Image)ResourceLoader.Load("res://world-1544060774196.png"));
     Timer _timer = new Timer();
 
-    void OnPlayerCharacterActivatePie() {
+    void OnPlayerCharacterActivatePie()
+    {
         _piehud!.Visible = true;
     }
 
-    void OnPieReleased(Vector2 position, String slice, int tier) {
+    void OnPieReleased(Vector2 position, String slice, int tier)
+    {
         var camera = GetViewport().GetCamera();
         var from = camera.ProjectRayOrigin(position);
         var to = from + camera.ProjectRayNormal(position) * 1000;
@@ -35,7 +37,8 @@ public class GameWorld : Spatial
         CheckIfNeedChunk(false);
     }
 
-    public override void _Ready() {
+    public override void _Ready()
+    {
         _character = (PlayerCharacter)GetNode("PlayerCharacter");
         _piehud = (Control)GetNode("CanvasLayer/PieHUD");
         AddChild(_map);

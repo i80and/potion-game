@@ -52,7 +52,8 @@ public class PieHUD : Control
         a = (TAU * 10 + a) % TAU;
         b = (TAU * 10 + b) % TAU;
 
-        if (a < b) {
+        if (a < b)
+        {
             return a <= n && n <= b;
         }
 
@@ -72,7 +73,7 @@ public class PieHUD : Control
         DrawCircle(cartesian, 15.0f, new Color(1.0f, 1.0f, 1.0f, 0.8f));
     }
 
-    void  OnPieVisibilityChanged()
+    void OnPieVisibilityChanged()
     {
         if (Visible == true)
         {
@@ -83,7 +84,8 @@ public class PieHUD : Control
         {
             Engine.TimeScale = 1.0f;
             this.WarpMouse(new Vector2(0, 0));
-            if (_selected != null) {
+            if (_selected != null)
+            {
                 EmitSignal("pie_released", RectPosition, _selected.slice, _selected.tier);
                 _selected = null;
             }
@@ -110,7 +112,7 @@ public class PieHUD : Control
 
         int tier = 0;
         float delta = float.PositiveInfinity;
-        for(int i = 0; i < TIERS.Length; i += 1)
+        for (int i = 0; i < TIERS.Length; i += 1)
         {
             float candidate_delta = Math.Abs(TIERS[i] - r);
             if (candidate_delta < delta)
@@ -122,8 +124,10 @@ public class PieHUD : Control
 
         float slice_theta = TAU - (SLICE_RADIANS / 2);
         String slice = "";
-        foreach (var candidateSlice in SLICES) {
-            if (AngleBetween(theta, slice_theta, Mathf.Wrap((slice_theta + SLICE_RADIANS), 0, TAU))) {
+        foreach (var candidateSlice in SLICES)
+        {
+            if (AngleBetween(theta, slice_theta, Mathf.Wrap((slice_theta + SLICE_RADIANS), 0, TAU)))
+            {
                 slice = candidateSlice;
                 break;
             }
@@ -131,9 +135,12 @@ public class PieHUD : Control
             slice_theta = Mathf.Wrap(slice_theta + SLICE_RADIANS, 0, TAU);
         }
 
-        if (slice.Empty()) {
+        if (slice.Empty())
+        {
             _selected = null;
-        } else {
+        }
+        else
+        {
             _selected = new Selection(slice, tier);
             Update();
         }

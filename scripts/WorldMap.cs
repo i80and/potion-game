@@ -5,7 +5,8 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Threading;
 
-struct BlockType {
+struct BlockType
+{
     public static readonly int[] SIZE = new int[] {
         2048 / WorldMap.CHUNK_PIXELS,
         2048 / WorldMap.CHUNK_PIXELS};
@@ -14,7 +15,8 @@ struct BlockType {
     public Image Albedo { get; }
     public bool HaveTree { get; }
 
-    public BlockType(string description, Color color, bool haveTree=false) {
+    public BlockType(string description, Color color, bool haveTree = false)
+    {
         this.Description = description;
         this.Albedo = new Image();
         this.Albedo.Create(SIZE[0], SIZE[1], false, Image.Format.Rgb8);
@@ -25,7 +27,8 @@ struct BlockType {
     }
 }
 
-class Chunk : Spatial {
+class Chunk : Spatial
+{
     static readonly Spatial TREE1_SCENE = (Spatial)((PackedScene)ResourceLoader.Load("res://scenes/Tree1.tscn")).Instance();
     static readonly Spatial TREE2_SCENE = (Spatial)((PackedScene)ResourceLoader.Load("res://scenes/Tree2.tscn")).Instance();
     static readonly Spatial MAPLE_SCENE = (Spatial)((PackedScene)ResourceLoader.Load("res://scenes/Maple.tscn")).Instance();
@@ -83,15 +86,18 @@ class Chunk : Spatial {
         var data = image.GetData();
         int i = 0;
         int offset = 0;
-        for (int y = 0; y < WorldMap.CHUNK_PIXELS; y += 1) {
-            for (int x = 0; x < WorldMap.CHUNK_PIXELS; x += 1) {
+        for (int y = 0; y < WorldMap.CHUNK_PIXELS; y += 1)
+        {
+            for (int x = 0; x < WorldMap.CHUNK_PIXELS; x += 1)
+            {
                 byte r = data[offset];
                 byte g = data[offset + 1];
                 byte b = data[offset + 2];
                 BlockType blockType;
                 if (BLOCK_TYPES.TryGetValue((r, g, b), out blockType))
                 {
-                    if (blockType.HaveTree) {
+                    if (blockType.HaveTree)
+                    {
                         var scene = TREES[rng.Next(0, TREES.Length)];
                         var tree = AddObject(scene, new Vector2(x, y), rng);
                         AddChild(tree);
@@ -159,7 +165,8 @@ class Chunk : Spatial {
         }
     }
 
-    static float RandomFloat(Random rng, float min, float max) {
+    static float RandomFloat(Random rng, float min, float max)
+    {
         return (float)rng.NextDouble() * (max - min) + min;
     }
 }
@@ -181,8 +188,10 @@ class Worker : Node
     {
         Interlocked.Add(ref pending, candidate_positions.Length);
 
-        Task.Run(() => {
-            foreach (var candidate in candidate_positions) {
+        Task.Run(() =>
+        {
+            foreach (var candidate in candidate_positions)
+            {
                 var rect = new Rect2(
                     candidate.x * WorldMap.CHUNK_PIXELS,
                     candidate.y * WorldMap.CHUNK_PIXELS,
@@ -199,8 +208,10 @@ class Worker : Node
         });
     }
 
-    public bool IsCompleted {
-        get {
+    public bool IsCompleted
+    {
+        get
+        {
             return pending == 0;
         }
     }
@@ -240,15 +251,17 @@ public class WorldMap : Node
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
-    {}
+    { }
 
     void GarbageCollectChunks(Vector2 camera_chunk_pos)
     {
         var removeKeys = new List<Vector2>(_chunks.Count);
-        foreach (var chunk in _chunks) {
+        foreach (var chunk in _chunks)
+        {
             var chunk_pos = chunk.Key;
             if (Math.Abs(chunk_pos.x - camera_chunk_pos.x) > 1 ||
-                Math.Abs(chunk_pos.y - camera_chunk_pos.y) > 1) {
+                Math.Abs(chunk_pos.y - camera_chunk_pos.y) > 1)
+            {
                 Chunk node = (Chunk)chunk.Value;
                 node.QueueFree();
                 removeKeys.Add(chunk_pos);
@@ -281,11 +294,13 @@ public class WorldMap : Node
         foreach (var dir in DIRECTIONS)
         {
             var candidate = chunk_pos + dir;
-            if (candidate.x < 0 || candidate.y < 0) {
+            if (candidate.x < 0 || candidate.y < 0)
+            {
                 continue;
             }
 
-            if (_chunks.ContainsKey(candidate)) {
+            if (_chunks.ContainsKey(candidate))
+            {
                 continue;
             }
 
