@@ -1,0 +1,19 @@
+name: CI
+
+on: [push]
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        platform: [ubuntu-18.04]
+    runs-on: ${{ matrix.platform }}
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.101'
+    - name: Install tools
+      run: dotnet tool install dotnet-format
+    - name: Check for problems
+      run: make lint
