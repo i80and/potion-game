@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=2]
 
-[ext_resource path="res://scripts/GameWorld.cs" type="Script" id=1]
+[ext_resource path="res://scripts/GameWorld.gd" type="Script" id=1]
 [ext_resource path="res://scenes/PieHUD.tscn" type="PackedScene" id=2]
 [ext_resource path="res://scenes/PlayerCharacter.tscn" type="PackedScene" id=3]
 
@@ -22,7 +22,6 @@ directional_shadow_split_1 = 0.25
 directional_shadow_split_2 = 0.5
 directional_shadow_split_3 = 1.0
 directional_shadow_depth_range = 1
-directional_shadow_max_distance = 100.0
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="Sun"]
 environment = SubResource( 2 )
@@ -33,6 +32,3 @@ environment = SubResource( 2 )
 
 [node name="PlayerCharacter" parent="." instance=ExtResource( 3 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 19.724 )
-[connection signal="pie_released" from="CanvasLayer/PieHUD" to="." method="OnPieReleased"]
-[connection signal="visibility_changed" from="CanvasLayer/PieHUD" to="CanvasLayer/PieHUD" method="OnPieVisibilityChanged"]
-[connection signal="activate_pie" from="PlayerCharacter" to="." method="OnPlayerCharacterActivatePie"]

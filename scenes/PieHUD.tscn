@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=2]
 
-[ext_resource path="res://scripts/PieHUD.cs" type="Script" id=1]
+[ext_resource path="res://scripts/PieHUD.gd" type="Script" id=1]
 [ext_resource path="res://models/pie.png" type="Texture" id=2]
 
 [node name="PieHUD" type="Control"]

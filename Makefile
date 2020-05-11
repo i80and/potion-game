@@ -1,7 +1,9 @@
-.PHONY: lint build
+GDSCRIPT_FILES=$(wildcard scripts/*.gd)
+
+.PHONY: lint format
 
 lint:
-	dotnet tool run dotnet-format --check --workspace \(Un\)holy.sln -v quiet
+	gdlint $(GDSCRIPT_FILES)
 
-build:
-	msbuild -verbosity:quiet
+format:
+	gdformat $(GDSCRIPT_FILES)
