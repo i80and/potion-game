@@ -12,7 +12,7 @@ _global_script_classes=[ {
 "base": "Area",
 "class": "Bush1",
 "language": "GDScript",
-"path": "res://scenes/Bush1.gd"
+"path": "res://scripts/Bush1.gd"
 }, {
 "base": "Spatial",
 "class": "GameWorld",
@@ -42,7 +42,7 @@ _global_script_classes=[ {
 "base": "KinematicBody",
 "class": "evilplant_04",
 "language": "GDScript",
-"path": "res://evilplant_04.gd"
+"path": "res://scripts/evilplant_04.gd"
 } ]
 _global_script_class_icons={
 "Bush1": "",

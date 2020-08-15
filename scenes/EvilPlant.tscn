@@ -1,6 +1,6 @@
-[gd_scene load_steps=24 format=2]
+[gd_scene load_steps=25 format=2]
 
-[ext_resource path="res://evilplant_04.gd" type="Script" id=1]
+[ext_resource path="res://scripts/evilplant_04.gd" type="Script" id=1]
 
 [sub_resource type="ArrayMesh" id=1]
 resource_name = "Flower base"
@@ -777,10 +777,17 @@ animation = "idle_alert"
 
 [sub_resource type="AnimationNodeOneShot" id=20]
 
-[sub_resource type="AnimationNodeBlend2" id=21]
+[sub_resource type="AnimationNodeTransition" id=21]
+input_count = 2
+input_0/name = "state 0"
+input_0/auto_advance = false
+input_1/name = "state 1"
+input_1/auto_advance = false
 
-[sub_resource type="AnimationNodeBlendTree" id=22]
-graph_offset = Vector2( -626.94, -9.5 )
+[sub_resource type="AnimationNodeBlend2" id=22]
+
+[sub_resource type="AnimationNodeBlendTree" id=23]
+graph_offset = Vector2( -313.348, -58.5 )
 nodes/Animation/node = SubResource( 19 )
 nodes/Animation/position = Vector2( -40, 180 )
 "nodes/Animation 2/node" = SubResource( 17 )
@@ -789,10 +796,12 @@ nodes/Animation/position = Vector2( -40, 180 )
 "nodes/Animation 3/position" = Vector2( -40, 60 )
 nodes/Attack/node = SubResource( 20 )
 nodes/Attack/position = Vector2( 346, 191 )
-nodes/Wakeup/node = SubResource( 21 )
+nodes/Transition/node = SubResource( 21 )
+nodes/Transition/position = Vector2( 220, -40 )
+nodes/Wakeup/node = SubResource( 22 )
 nodes/Wakeup/position = Vector2( 160, 120 )
 nodes/output/position = Vector2( 540, 140 )
-node_connections = [ "output", 0, "Attack", "Wakeup", 0, "Animation 3", "Wakeup", 1, "Animation", "Attack", 0, "Wakeup", "Attack", 1, "Animation 2" ]
+node_connections = [ "output", 0, "Attack", "Attack", 0, "Wakeup", "Attack", 1, "Animation 2", "Wakeup", 1, "Animation" ]
 
 [node name="evilplant_04" type="KinematicBody" groups=[
 "enemies",
@@ -966,10 +975,11 @@ shape = SubResource( 15 )
 shape = SubResource( 16 )
 
 [node name="AnimationTree" type="AnimationTree" parent="."]
-tree_root = SubResource( 22 )
+tree_root = SubResource( 23 )
 anim_player = NodePath("../AnimationPlayer")
 active = true
 parameters/Attack/active = false
+parameters/Transition/current = 0
 parameters/Wakeup/blend_amount = 0.0
 [connection signal="body_entered" from="DetectArea" to="." method="_on_DetectArea_body_entered"]
 [connection signal="body_exited" from="DetectArea" to="." method="_on_DetectArea_body_exited"]
