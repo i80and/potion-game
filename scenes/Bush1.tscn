@@ -1,9 +1,10 @@
 [gd_scene load_steps=11 format=2]
 
 [ext_resource path="res://materials/bush1_leaf.png" type="Texture" id=1]
-[ext_resource path="res://scenes/Bush1.gd" type="Script" id=2]
+[ext_resource path="res://scripts/Bush1.gd" type="Script" id=2]
 [ext_resource path="res://models/Bush.material" type="Material" id=3]
 [ext_resource path="res://materials/bush1_texture.png" type="Texture" id=4]
+
 
 [sub_resource type="CylinderShape" id=1]
 radius = 1.12984
