@@ -9,6 +9,11 @@
 config_version=4
 
 _global_script_classes=[ {
+"base": "Area",
+"class": "Bush1",
+"language": "GDScript",
+"path": "res://scenes/Bush1.gd"
+}, {
 "base": "Spatial",
 "class": "GameWorld",
 "language": "GDScript",
@@ -40,6 +45,7 @@ _global_script_classes=[ {
 "path": "res://evilplant_04.gd"
 } ]
 _global_script_class_icons={
+"Bush1": "",
 "GameWorld": "",
 "Island": "",
 "PieHUD": "",
@@ -66,7 +72,7 @@ gdscript/warnings/unsafe_call_argument=true
 [display]
 
 window/size/width=1280
-window/size/height=768
+window/size/height=720
 
 [input]
 
