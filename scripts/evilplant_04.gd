@@ -4,38 +4,46 @@ extends KinematicBody
 # Declare member variables here. Examples:
 # var a = 2
 # var b = "text"
-var EnemyToPlayer
-var DetectDistance = 5
-var Ray = null
-var Player = null
-onready var Flower_body = $Armature
-onready var Anim_tree = $AnimationTree
-var i = 1
+var player = null
+onready var Flower_body: Spatial = $Armature
+onready var Anim_tree: AnimationTree = $AnimationTree2
+onready var bullet_spawn_point = get_node(@"Armature/Position3D")
+var i := 1
+export (PackedScene) var Seed_proj
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	Ray = get_node("RayCast")
 	set_process(true)
-
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	if Player:
-		Flower_body.look_at(Player.get_global_transform().origin, Vector3(0,1,0))
-		if i < 5:
-			i+=1
-		else:
-			i = 1
-			#print(angle)
-			#print(player_dir)
-	else:
-		pass
+	if player:
+		Flower_body.look_at(player.get_global_transform().origin, Vector3(0,1,0))
+#		var s = Seed_proj.instance()
+#		add_child(s)
+#		s.global_transform = $Position3D.global_transform
+#		s.velocity = -s.transform.basis.z * s.muzzle_velocity
+#			#print(angle)
+#			#print(player_dir)
+#	else:
+#		pass
 
 func _on_DetectArea_body_entered(body):
 	if body.is_in_group("player"):
-		Anim_tree.set("parameters/Wakeup/blend_amount", 1.0)
-		Player = body
+		var state_machine = Anim_tree["parameters/playback"]
+		state_machine.travel("attack")
+		player = body
 
 func _on_DetectArea_body_exited(body):
-	Anim_tree.set("parameters/Wakeup/blend_amount", 0)
-	Player = null
+	var state_machine = Anim_tree["parameters/playback"]
+	state_machine.travel("idle")
+	player = null
+
+func shoot_shit():
+	if not player:
+		pass
+		
+	var s = Seed_proj.instance()
+	add_child(s)
+	s.global_transform = bullet_spawn_point.global_transform
+	s.velocity = -s.transform.basis.z * s.muzzle_velocity
