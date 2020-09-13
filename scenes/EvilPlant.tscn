@@ -1,6 +1,6 @@
 [gd_scene load_steps=27 format=2]
 
-[ext_resource path="res://scripts/evilplant_04.gd" type="Script" id=1]
+[ext_resource path="res://scripts/EvilPlant.gd" type="Script" id=1]
 
 [sub_resource type="ArrayMesh" id=1]
 resource_name = "Flower base"
@@ -813,7 +813,7 @@ start_node = "idle"
 
 [sub_resource type="AnimationNodeStateMachinePlayback" id=25]
 
-[node name="evilplant_04" type="KinematicBody" groups=[
+[node name="EvilPlant" type="KinematicBody" groups=[
 "enemies",
 ]]
 script = ExtResource( 1 )

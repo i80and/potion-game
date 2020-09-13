@@ -1,5 +1,5 @@
-extends Node
 class_name StateMachine
+extends Node
 # Generic State Machine. Initializes states and delegates engine callbacks
 # (_physics_process, _unhandled_input) to the active state.
 

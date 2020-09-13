@@ -1,5 +1,5 @@
-extends State
 class_name CameraState
+extends State
 # Base type for the camera rig's state classes. Contains boilerplate code to
 # get autocompletion and type hints.
 

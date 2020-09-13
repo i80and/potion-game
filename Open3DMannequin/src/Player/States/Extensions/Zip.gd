@@ -3,9 +3,8 @@ extends PlayerState
 # piece of logic (in this case, the Camera's aim state firing with a raycast)
 # and flies through the air to reach it.
 
-
-var speed: = 10.0
-var target: = Vector3.ZERO
+var speed := 10.0
+var target := Vector3.ZERO
 
 
 func unhandled_input(event: InputEvent) -> void:
@@ -14,7 +13,7 @@ func unhandled_input(event: InputEvent) -> void:
 
 
 func physics_process(delta: float) -> void:
-	var direction: = (target - player.get_global_transform().origin).normalized()
+	var direction := (target - player.get_global_transform().origin).normalized()
 	var aim_length: float = player.camera.aim_ray.cast_to.length() - target.length() + 1.0
 
 	_parent.velocity = direction * speed

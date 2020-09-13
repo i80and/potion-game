@@ -1,5 +1,5 @@
-extends Node
 class_name State
+extends Node
 # State interface to use in Hierarchical State Machines. The lowest leaf tries
 # to handle callbacks, and if it can't, it delegates the work to its parent.
 #
@@ -8,11 +8,11 @@ class_name State
 #
 # Use State as a child of a StateMachine node.
 
-onready var _state_machine: StateMachine = _get_state_machine(self)
-
 # Using the same class, i.e. State, as a type hint causes a memory leak in Godot
 # 3.2.
 var _parent = null
+
+onready var _state_machine: StateMachine = _get_state_machine(self)
 
 
 func _ready() -> void:
@@ -22,19 +22,19 @@ func _ready() -> void:
 		_parent = parent
 
 
-func unhandled_input(event: InputEvent) -> void:
+func unhandled_input(_event: InputEvent) -> void:
 	pass
 
 
-func process(delta: float) -> void:
+func process(_delta: float) -> void:
 	pass
 
 
-func physics_process(delta: float) -> void:
+func physics_process(_delta: float) -> void:
 	pass
 
 
-func enter(msg := {}) -> void:
+func enter(_msg := {}) -> void:
 	pass
 
 
@@ -45,4 +45,4 @@ func exit() -> void:
 func _get_state_machine(node: Node) -> StateMachine:
 	if node != null and not node.is_in_group("state_machine"):
 		return _get_state_machine(node.get_parent())
-	return (node as StateMachine)
+	return node as StateMachine
