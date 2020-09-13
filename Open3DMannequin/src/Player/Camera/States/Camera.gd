@@ -17,11 +17,12 @@ export var sensitivity_mouse := Vector2(0.1, 0.1)
 var _input_relative := Vector2.ZERO
 
 
-func process(delta: float) -> void:
+func process(_delta: float) -> void:
 	camera_rig.global_transform.origin = (
 		camera_rig.player.global_transform.origin
 		+ camera_rig._position_start
 	)
+
 
 func unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("zoom_in"):
@@ -31,9 +32,12 @@ func unhandled_input(event: InputEvent) -> void:
 	elif event is InputEventMouseMotion and Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
 		_input_relative += (event as InputEventMouseMotion).get_relative()
 
+
 # Returns the direction of the camera movement from the player
 static func get_look_direction() -> Vector2:
-	return Vector2(Input.get_action_strength("look_right") - Input.get_action_strength("look_left"), Input.get_action_strength("look_up") - Input.get_action_strength("look_down")).normalized()
+	return Vector2(
+		Input.get_action_strength("look_right") - Input.get_action_strength("look_left"),
+		Input.get_action_strength("look_up") - Input.get_action_strength("look_down")).normalized()
 
 # Returns the move direction of the character controlled by the player
 static func get_move_direction() -> Vector3:

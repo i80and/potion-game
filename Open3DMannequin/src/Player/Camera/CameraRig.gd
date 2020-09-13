@@ -1,17 +1,15 @@
 tool
-extends Spatial
 class_name CameraRig
+extends Spatial
 # Accessor class that gives the nodes in the scene access the player or some
 # frequently used nodes in the scene itself.
+
+var player: KinematicBody
+var zoom := 0.5 setget set_zoom
 
 onready var camera: InterpolatedCamera = $InterpolatedCamera
 onready var spring_arm: ZoomableSpringArm = $SpringArm
 onready var aim_ray: RayCast = $InterpolatedCamera/AimRay
-
-var player: KinematicBody
-
-var zoom := 0.5 setget set_zoom
-
 onready var _position_start: Vector3 = translation
 
 

@@ -24,6 +24,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://Open3DMannequin/src/Player/Camera/CameraState.gd"
 }, {
+"base": "KinematicBody",
+"class": "EvilPlant",
+"language": "GDScript",
+"path": "res://scripts/EvilPlant.gd"
+}, {
 "base": "Spatial",
 "class": "GameWorld",
 "language": "GDScript",
@@ -49,7 +54,7 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://Open3DMannequin/src/Player/Player.gd"
 }, {
-"base": "Character",
+"base": "KinematicBody",
 "class": "PlayerCharacter",
 "language": "GDScript",
 "path": "res://scripts/PlayerCharacter.gd"
@@ -58,6 +63,11 @@ _global_script_classes=[ {
 "class": "PlayerState",
 "language": "GDScript",
 "path": "res://Open3DMannequin/src/Player/PlayerState.gd"
+}, {
+"base": "Area",
+"class": "SeedProjectile",
+"language": "GDScript",
+"path": "res://scripts/SeedProjectile.gd"
 }, {
 "base": "Node",
 "class": "State",
@@ -78,16 +88,12 @@ _global_script_classes=[ {
 "class": "ZoomableSpringArm",
 "language": "GDScript",
 "path": "res://Open3DMannequin/src/Player/Camera/ZoomableSpringArm.gd"
-}, {
-"base": "KinematicBody",
-"class": "evilplant_04",
-"language": "GDScript",
-"path": "res://scripts/evilplant_04.gd"
 } ]
 _global_script_class_icons={
 "Bush1": "",
 "CameraRig": "",
 "CameraState": "",
+"EvilPlant": "",
 "GameWorld": "",
 "Island": "",
 "Mannequiny": "",
@@ -95,11 +101,11 @@ _global_script_class_icons={
 "Player": "",
 "PlayerCharacter": "",
 "PlayerState": "",
+"SeedProjectile": "",
 "State": "",
 "StateMachine": "",
 "ThrownPotion": "",
-"ZoomableSpringArm": "",
-"evilplant_04": ""
+"ZoomableSpringArm": ""
 }
 
 [application]

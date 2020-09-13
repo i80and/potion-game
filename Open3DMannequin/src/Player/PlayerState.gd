@@ -1,7 +1,5 @@
-extends State
 class_name PlayerState
-# Base type for the player's state classes. Contains boilerplate code to get
-# autocompletion and type hints.
+extends State
 
 var player: Player
 var skin: Mannequiny

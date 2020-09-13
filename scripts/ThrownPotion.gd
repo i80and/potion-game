@@ -4,7 +4,7 @@ extends RigidBody
 const GRAVITY: float = 9.80665
 
 static func solve_ballistic_arc_lateral(
-	proj_pos: Vector3, proj_speed: float, target: Vector3, force: bool
+		proj_pos: Vector3, proj_speed: float, target: Vector3, force: bool
 ) -> Vector3:
 	assert(proj_pos != target && proj_speed > 0)
 	var diff: Vector3 = target - proj_pos
