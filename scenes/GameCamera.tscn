@@ -4,7 +4,8 @@
 script/source = "extends Camera
 
 func _ready() -> void:
-    set_orthogonal(size, -size, 100)"
+	set_orthogonal(size, -size, 100)
+"
 
 [node name="GameCamera" type="Camera"]
 transform = Transform( 0.898794, -0.192169, 0.394005, 0, 0.898794, 0.438371, -0.438371, -0.394005, 0.807831, 0, 0, 0 )

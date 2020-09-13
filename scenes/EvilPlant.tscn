@@ -781,37 +781,37 @@ height = 0.531691
 [sub_resource type="SphereShape" id=16]
 radius = 8.81541
 
-[sub_resource type="AnimationNodeAnimation" id=33]
+[sub_resource type="AnimationNodeAnimation" id=17]
 animation = "attack"
 
-[sub_resource type="AnimationNodeAnimation" id=25]
+[sub_resource type="AnimationNodeAnimation" id=18]
 animation = "idle"
 
-[sub_resource type="AnimationNodeAnimation" id=34]
+[sub_resource type="AnimationNodeAnimation" id=19]
 animation = "idle_alert"
 
-[sub_resource type="AnimationNodeStateMachineTransition" id=35]
+[sub_resource type="AnimationNodeStateMachineTransition" id=20]
 xfade_time = 1.0
 
-[sub_resource type="AnimationNodeStateMachineTransition" id=36]
+[sub_resource type="AnimationNodeStateMachineTransition" id=21]
 
-[sub_resource type="AnimationNodeStateMachineTransition" id=37]
+[sub_resource type="AnimationNodeStateMachineTransition" id=22]
 xfade_time = 1.0
 
-[sub_resource type="AnimationNodeStateMachineTransition" id=38]
+[sub_resource type="AnimationNodeStateMachineTransition" id=23]
 xfade_time = 1.0
 
-[sub_resource type="AnimationNodeStateMachine" id=31]
-states/attack/node = SubResource( 33 )
+[sub_resource type="AnimationNodeStateMachine" id=24]
+states/attack/node = SubResource( 17 )
 states/attack/position = Vector2( 742, 189 )
-states/idle/node = SubResource( 25 )
+states/idle/node = SubResource( 18 )
 states/idle/position = Vector2( 209, 176 )
-states/idle_alert/node = SubResource( 34 )
+states/idle_alert/node = SubResource( 19 )
 states/idle_alert/position = Vector2( 489, 78 )
-transitions = [ "idle", "idle_alert", SubResource( 35 ), "idle_alert", "attack", SubResource( 36 ), "attack", "idle_alert", SubResource( 37 ), "idle_alert", "idle", SubResource( 38 ) ]
+transitions = [ "idle", "idle_alert", SubResource( 20 ), "idle_alert", "attack", SubResource( 21 ), "attack", "idle_alert", SubResource( 22 ), "idle_alert", "idle", SubResource( 23 ) ]
 start_node = "idle"
 
-[sub_resource type="AnimationNodeStateMachinePlayback" id=32]
+[sub_resource type="AnimationNodeStateMachinePlayback" id=25]
 
 [node name="evilplant_04" type="KinematicBody" groups=[
 "enemies",
@@ -988,9 +988,9 @@ shape = SubResource( 15 )
 shape = SubResource( 16 )
 
 [node name="AnimationTree2" type="AnimationTree" parent="."]
-tree_root = SubResource( 31 )
+tree_root = SubResource( 24 )
 anim_player = NodePath("../AnimationPlayer")
 active = true
-parameters/playback = SubResource( 32 )
+parameters/playback = SubResource( 25 )
 [connection signal="body_entered" from="DetectArea" to="." method="_on_DetectArea_body_entered"]
 [connection signal="body_exited" from="DetectArea" to="." method="_on_DetectArea_body_exited"]

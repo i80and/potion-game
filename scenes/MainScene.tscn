@@ -2,11 +2,11 @@
 
 [ext_resource path="res://scripts/GameWorld.gd" type="Script" id=1]
 [ext_resource path="res://scenes/PieHUD.tscn" type="PackedScene" id=2]
-[ext_resource path="res://scenes/PlayerCharacter.tscn" type="PackedScene" id=3]
 [ext_resource path="res://scenes/World.tscn" type="PackedScene" id=4]
 [ext_resource path="res://scenes/Bush1.tscn" type="PackedScene" id=5]
 [ext_resource path="res://scenes/EvilPlant.tscn" type="PackedScene" id=6]
 [ext_resource path="res://scenes/Seed_proj.tscn" type="PackedScene" id=7]
+[ext_resource path="res://Open3DMannequin/src/Player/Player.tscn" type="PackedScene" id=8]
 
 [sub_resource type="ProceduralSky" id=1]
 
@@ -37,12 +37,12 @@ environment = SubResource( 2 )
 
 [node name="PieHUD" parent="CanvasLayer" instance=ExtResource( 2 )]
 
-[node name="PlayerCharacter" parent="." instance=ExtResource( 3 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 19.724 )
-
 [node name="Bush1" parent="." instance=ExtResource( 5 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2.39679, 0.00800705, 9.54358 )
 
 [node name="evilplant_04" parent="." instance=ExtResource( 6 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 6.21337, 0.00915992, 20.4754 )
 Seed_proj = ExtResource( 7 )
+
+[node name="PlayerCharacter" parent="." instance=ExtResource( 8 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 11.0963, 0, 22.0486 )
