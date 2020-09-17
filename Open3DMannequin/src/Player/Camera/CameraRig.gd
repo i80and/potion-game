@@ -7,9 +7,8 @@ extends Spatial
 var player: KinematicBody
 var zoom := 0.5 setget set_zoom
 
-onready var camera: InterpolatedCamera = $InterpolatedCamera
+onready var camera: Camera = $Camera
 onready var spring_arm: ZoomableSpringArm = $SpringArm
-onready var aim_ray: RayCast = $InterpolatedCamera/AimRay
 onready var _position_start: Vector3 = translation
 
 
