@@ -34,6 +34,16 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://scripts/GameWorld.gd"
 }, {
+"base": "ResourceFormatLoader",
+"class": "HTerrainDataLoader",
+"language": "GDScript",
+"path": "res://addons/zylann.hterrain/hterrain_resource_loader.gd"
+}, {
+"base": "ResourceFormatSaver",
+"class": "HTerrainDataSaver",
+"language": "GDScript",
+"path": "res://addons/zylann.hterrain/hterrain_resource_saver.gd"
+}, {
 "base": "Spatial",
 "class": "Island",
 "language": "GDScript",
@@ -95,6 +105,8 @@ _global_script_class_icons={
 "CameraState": "",
 "EvilPlant": "",
 "GameWorld": "",
+"HTerrainDataLoader": "",
+"HTerrainDataSaver": "",
 "Island": "",
 "Mannequiny": "",
 "PieHUD": "",
@@ -127,6 +139,10 @@ gdscript/warnings/unsafe_call_argument=true
 
 window/size/width=1280
 window/size/height=720
+
+[editor_plugins]
+
+enabled=PoolStringArray( "zylann.hterrain" )
 
 [input]
 
